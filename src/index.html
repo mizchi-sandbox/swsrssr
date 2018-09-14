@@ -1,0 +1,18 @@
+<html>
+
+<head>
+  <title>Worker test</title>
+</head>
+
+<body>
+  <h1>Bootstrap...</h1>
+  <script type="module">
+    ; (async () => {
+      await navigator.serviceWorker.register('./sw.bundle.js');
+      await navigator.serviceWorker.ready;
+      location.reload()
+    })();
+  </script>
+</body>
+
+</html>
