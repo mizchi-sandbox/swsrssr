@@ -1,24 +1,38 @@
+import url from "url";
 import React from "react";
 import ReactDOMServer from "react-dom/server";
-import App from "./App";
+import App from "./components/App";
 import createStore from "./createStore";
+import { ROUTE, REDIRECT } from "./reducers/router";
+import router from "./router";
 
-const render = () => {
-  const store = createStore();
+const render = store => {
+  console.time("ssr");
   const html = ReactDOMServer.renderToString(<App store={store} />);
+  console.timeEnd("ssr");
   return `<html>
 <head>
   <title>SSR</title>
 </head>
-<body>
+<body style="margin: 0">
   <div class="root">${html}</div>
   <script type="module">
+    const INCLUDE_MAIN = true;
     ;(async () => {
       window.__initialState = ${JSON.stringify(store.getState())}
       await navigator.serviceWorker.register('/sw.bundle.js');
       const r = await navigator.serviceWorker.ready;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        location.reload();
+      })
       setInterval(() => r.update(), 1000)
-      import("./main.bundle.js")
+      if (INCLUDE_MAIN) {
+        import("./main.bundle.js")
+      } else {
+        document.body.addEventListener('click', e => {
+          console.log(e.target)
+        })
+      }
     })();
   </script>
 </body>
@@ -37,16 +51,29 @@ self.addEventListener("activate", function(event) {
 });
 
 self.addEventListener("fetch", event => {
-  const url = new URL(event.request.url);
-  if (url.pathname === "/") {
-    event.respondWith(
-      (async => {
-        return new Response(render(), {
+  const parsed = new URL(event.request.url);
+
+  event.respondWith(
+    (async () => {
+      const action = await router.resolve(parsed.pathname).catch(e => {
+        return {
+          type: "nop"
+        };
+      });
+      if (action.type === ROUTE) {
+        const store = createStore();
+        store.dispatch(action);
+        return new Response(render(store), {
           headers: {
             "Content-Type": "text/html"
           }
         });
-      })()
-    );
-  }
+      } else if (action.type === REDIRECT) {
+        // TODO: route
+        return fetch(event.request);
+      } else {
+        return fetch(event.request);
+      }
+    })()
+  );
 });

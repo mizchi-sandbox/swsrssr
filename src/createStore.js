@@ -1,22 +1,10 @@
 import { createStore, combineReducers } from "redux";
-
-const initialState = {
-  value: 0
-};
-
-const appReducer = (state = initialState, action) => {
-  switch (action.type) {
-    case "increment": {
-      return { value: state.value + 1 };
-    }
-    default: {
-      return state;
-    }
-  }
-};
+import counter from "./reducers/counter";
+import router from "./reducers/router";
 
 const reducer = combineReducers({
-  app: appReducer
+  counter,
+  router
 });
 
 export default (state = undefined) => {

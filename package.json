@@ -4,7 +4,8 @@
   "scripts": {
     "start": "run-p watch:*",
     "watch:webpack": "webpack -w",
-    "watch:server": "pushstate-server dist 10001"
+    "watch:server": "pushstate-server dist 10001",
+    "deploy": "webpack --mode production && netlify -p dist"
   },
   "devDependencies": {
     "@babel/core": "^7.0.1",
@@ -13,7 +14,7 @@
     "@babel/preset-react": "^7.0.0",
     "babel-loader": "^8.0.2",
     "html-webpack-plugin": "^3.2.0",
-    "http-server": "^0.11.1",
+    "netlify-cli": "^1.2.3",
     "npm-run-all": "^4.1.3",
     "pushstate-server": "^3.0.1",
     "webpack": "^4.19.0",
@@ -24,6 +25,7 @@
     "react": "^16.5.1",
     "react-dom": "^16.5.1",
     "react-redux": "^5.0.7",
-    "redux": "^4.0.0"
+    "redux": "^4.0.0",
+    "universal-router": "^6.0.0"
   }
 }
