@@ -2,7 +2,7 @@ import UniversalRouter from "universal-router";
 import createStore from "./createStore";
 import { route, redirect } from "./reducers/router";
 
-const routes = [
+export const routes = [
   {
     path: "/",
     action: async context => {
